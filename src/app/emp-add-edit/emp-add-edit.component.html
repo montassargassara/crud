@@ -19,31 +19,18 @@
                 <mat-label>Email</mat-label>
                 <input matInput type="email" placeholder="Ex. test@gmail.com" formControlName="email">
             </mat-form-field>
-            <mat-form-field appearance="outline">
-                <mat-label>Date of birth</mat-label>
-                <input matInput [matDatepicker]="picker" formControlName="birthDate">
-                <mat-hint>MM/DD/YYYY</mat-hint>
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
         </div>
 
         <div class="row">
             <mat-radio-group aria-label="Select an option" formControlName="gender">
                 <mat-label><b>Gender</b></mat-label>
-                <mat-radio-button value="MALE">MALE</mat-radio-button>
-                <mat-radio-button value="FEMALE">FEMALE</mat-radio-button>
-                <mat-radio-button value="OTHERS">OTHERS</mat-radio-button>
+                <mat-radio-button value="male">MALE</mat-radio-button>
+                <mat-radio-button value="female">FEMALE</mat-radio-button>
             </mat-radio-group>
         </div>
 
         <div class="row">
-            <mat-form-field appearance="outline">
-                <mat-label>Team</mat-label>
-                <mat-select formControlName="team">
-                    <mat-option *ngFor="let val of team" [value]="val">{{val}}</mat-option>
-                </mat-select>
-            </mat-form-field>           
+                     
             <mat-form-field appearance="outline">
                 <mat-label>photo</mat-label>
                 <input matInput placeholder="Ex. Google" formControlName="photo">

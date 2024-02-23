@@ -27,43 +27,43 @@ export class EmpAddEditComponent implements OnInit {
       email: '',
       birthDate: '',
       gender: '',
-      team: '',
-      photo: '',
+      photo: [''],
     });
   }
 
   ngOnInit(): void {
     this.empForm.patchValue(this.data);
   }
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    this.empForm.get('photo')?.setValue(file?.name);
+}
 
-  onFormSubmit() {
-    if (this.empForm.valid) {
-      const formData = this.empForm.value;
-      const serializedFormData = JSON.stringify(formData);
-
-      if (this.data) {
-        this._empService
-          .updateEmployee(this.data.id, serializedFormData)
-          .subscribe({
-            next: (val: any) => {
-              this._coreService.openSnackBar('Employee detail updated!');
-              this._dialogRef.close(true);
-            },
-            error: (err: any) => {
-              console.error(err);
-            },
-          });
-      } else {
-        this._empService.addEmployee(serializedFormData).subscribe({
+onFormSubmit() {
+  if (this.empForm.valid) {
+    if (this.data) {
+      this._empService
+        .updateEmployee(this.data.id, this.empForm.value)
+        .subscribe({
           next: (val: any) => {
-            this._coreService.openSnackBar('Employee added successfully');
+            this._coreService.openSnackBar('Employee detail updated!');
             this._dialogRef.close(true);
           },
           error: (err: any) => {
             console.error(err);
           },
         });
-      }
+    } else {
+      this._empService.addEmployee(this.empForm.value).subscribe({
+        next: (val: any) => {
+          this._coreService.openSnackBar('Employee added successfully');
+          this._dialogRef.close(true);
+        },
+        error: (err: any) => {
+          console.error(err);
+        },
+      });
     }
   }
+}
 }

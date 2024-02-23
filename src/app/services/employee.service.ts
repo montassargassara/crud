@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -18,11 +18,17 @@ export class EmployeeService {
   }
 
   addEmployee(data: any): Observable<any> {
-    return this.http.post('http://localhost:9091/emp/addEmployees', data);
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    return this.http.post('http://localhost:9091/emp/addEmployee', data, { headers: headers });
   }
 
   updateEmployee(id: number, data: any): Observable<any> {
-    return this.http.put(`http://localhost:9091/emp/updateEmployee/${id}`, data);
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    return this.http.put(`http://localhost:9091/emp/updateEmployee/${id}`, data ,{ headers: headers });
   }
   deleteEmployee(id: number): Observable<any> {
     return this.http.delete(`http://localhost:9091/emp/deleteEmployeeById/${id}`);
