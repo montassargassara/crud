@@ -15,3 +15,10 @@
   display: flex;
   gap: 5px;
 }
+/* Dans votre fichier de styles global (styles.scss) */
+.circular-image {
+  width: 50px; /* Définissez la taille souhaitée pour l'image */
+  height: 50px;
+  border-radius: 50%; /* Rend l'image circulaire */
+  object-fit: cover; /* Empêche l'image de se déformer */
+}

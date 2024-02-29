@@ -6,6 +6,8 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { CoreService } from './core/core.service';
+import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
+import { Employee, EmployeeImage } from './employee';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +15,7 @@ import { CoreService } from './core/core.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
+  selectedFileUrl: any = null;
   displayedColumns: string[] = [
     'id',
     'firstname',
@@ -22,6 +25,7 @@ export class AppComponent implements OnInit {
     'photo',
     'action',
   ];
+  Employees?: Employee[];
   dataSource!: MatTableDataSource<any>;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -30,7 +34,8 @@ export class AppComponent implements OnInit {
   constructor(
     private _dialog: MatDialog,
     private _empService: EmployeeService,
-    private _coreService: CoreService
+    private _coreService: CoreService,
+    private _sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -90,5 +95,13 @@ export class AppComponent implements OnInit {
         }
       },
     });
+  }
+
+  getImageUrl(image: EmployeeImage): SafeUrl {
+    if (image && image.picByte) {
+      const imageUrl = 'data:' + image.type + ';base64,' + image.picByte;
+      return this._sanitizer.bypassSecurityTrustUrl(imageUrl);
+    }
+    return '';
   }
 }

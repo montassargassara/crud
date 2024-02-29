@@ -22,21 +22,18 @@
         </div>
 
         <div class="row">
-            <mat-radio-group aria-label="Select an option" formControlName="gender">
-                <mat-label><b>Gender</b></mat-label>
-                <mat-radio-button value="male">MALE</mat-radio-button>
-                <mat-radio-button value="female">FEMALE</mat-radio-button>
-            </mat-radio-group>
+            <mat-form-field appearance="outline">
+                <mat-label>Gender</mat-label>
+                <mat-select formControlName="gender" placeholder="Select gender">
+                    <mat-option value="male">Male</mat-option>
+                    <mat-option value="female">Female</mat-option>
+                </mat-select>
+            </mat-form-field>
         </div>
 
         <div class="row">
-                     
-            <mat-form-field appearance="outline">
-                <mat-label>photo</mat-label>
-                <input matInput placeholder="Ex. Google" formControlName="photo">
-            </mat-form-field>
+            <input type="file" (change)="onFileSelected($event)" accept="image/*">
         </div>
-        
     </div>
     <div mat-dialog-actions class="action">
         <button mat-button [mat-dialog-close]="false">Cancel</button>
