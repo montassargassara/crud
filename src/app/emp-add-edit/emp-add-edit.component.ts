@@ -1,11 +1,11 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
-import { SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { EmployeeService } from '../services/employee.service';
 import { CoreService } from '../core/core.service';
-import { Employee } from '../employee';
+import { Employee, EmployeeImage } from '../employee';
 
 @Component({
   selector: 'app-emp-add-edit',
@@ -15,73 +15,95 @@ import { Employee } from '../employee';
 export class EmpAddEditComponent implements OnInit {
   empForm: FormGroup;
   editMode: boolean = false;
+  imageUrl: SafeUrl | null = null;
+  imageFiles: File[] = [];
+  selectedFileName: string | null = null;
 
   constructor(
-  private snackBar: MatSnackBar,
-  private _fb: FormBuilder,
-  private _empService: EmployeeService,
-  private _dialogRef: MatDialogRef<EmpAddEditComponent>,
-  @Inject(MAT_DIALOG_DATA) public data: any,
-  private _coreService: CoreService
-) {
-  this.empForm = this._fb.group({
-    firstname: ['', Validators.required],
-    lastname: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    gender: ['', Validators.required],
-  });
+    private snackBar: MatSnackBar,
+    private _fb: FormBuilder,
+    private _empService: EmployeeService,
+    private _dialogRef: MatDialogRef<EmpAddEditComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private _coreService: CoreService,
+    private _sanitizer: DomSanitizer
+  ) {
+    this.empForm = this._fb.group({
+      id: 0,
+      firstname: ['', Validators.required],
+      lastname: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      gender: ['', Validators.required],
+      image: [''] // Ajoutez cette ligne pour stocker le nom de l'image
+    });
 
-  if (data && data.employee) {
-    this.editMode = false;
-    this.empForm.patchValue(data.employee);
+    if (data && data.employee) {
+      this.editMode = true;
+      this.empForm.patchValue(data.employee);
+      const images = data.employee.employeeImages;
+      if (images && images.length > 0) {
+        this.imageUrl = this.getImageUrl(images[0]);
+      }
+      this.empForm.patchValue({ id: data.employee.id });
+    }
   }
-}
+
   ngOnInit(): void {}
 
-  imageFiles: File[] = [];
+  getImageUrl(image: EmployeeImage): SafeUrl | null {
+    if (image && image.picByte) {
+      const imageUrl = 'data:' + image.type + ';base64,' + image.picByte;
+      return this._sanitizer.bypassSecurityTrustUrl(imageUrl);
+    }
+    return null;
+  }
+
   onFileSelected(event: any): void {
     this.imageFiles = event.target.files;
+    const file = this.imageFiles[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        this.imageUrl = this._sanitizer.bypassSecurityTrustUrl(reader.result as string);
+        //this.empForm.patchValue({ image: file.name }); // Mettez à jour le nom de l'image dans le formulaire
+      };
+    }
   }
 
   showSuccessMessage() {
     const config = new MatSnackBarConfig();
-    config.duration = 3000; // Duration in milliseconds
-    config.horizontalPosition = 'center'; // Set the horizontal position to center
-    config.verticalPosition = 'top'; // Set the vertical position to top
+    config.duration = 3000;
+    config.horizontalPosition = 'center';
+    config.verticalPosition = 'top';
 
     this.snackBar.open('Formation Ajoutée!', 'Close', config);
   }
 
   addEmployee(employeeData: Employee, imageFiles: File[]): void {
-    console.log('Employee Data:', employeeData);
-    console.log('Image Files:', imageFiles);
-    // Call the service method to add the offer
     this._empService.addEmployee(employeeData, imageFiles)
       .subscribe(response => {
-        if (response){
-        this.showSuccessMessage();
-        // Handle success, if needed
-        this._dialogRef.close();
-        location.reload();}
+        if (response) {
+          this.showSuccessMessage();
+          this._dialogRef.close();
+          location.reload();
+        }
       }, error => {
         console.error('Error adding employee:', error);
-        // Handle error, if needed
       });
-  
-}
-
+  }
 
   editEmployee(employeeData: Employee, imageFiles: File[]): void {
-    this._empService.updateEmployee(employeeData.id, employeeData, imageFiles).subscribe({
-      next: (val: any) => {
-        this._coreService.openSnackBar('Employee detail updated!');
-        this._dialogRef.close(true);
-        console.log(val);
-      },
-      error: (err: any) => {
-        console.error(err);
-      },
-    });
+    this._empService.updateEmployee(employeeData.id, employeeData, imageFiles)
+      .subscribe(response => {
+        if (response) {
+          this.showSuccessMessage();
+          this._dialogRef.close();
+          location.reload();
+        }
+      }, error => {
+        console.error('Error updating employee:', error);
+      });
   }
 
   onFormSubmit(): void {

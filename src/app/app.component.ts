@@ -27,7 +27,9 @@ export class AppComponent implements OnInit {
   ];
   Employees?: Employee[];
   dataSource!: MatTableDataSource<any>;
+  selectedFileName: string | null = null;
 
+  imageFiles: File[] = [];
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -85,9 +87,8 @@ export class AppComponent implements OnInit {
 
   openEditForm(data: any) {
     const dialogRef = this._dialog.open(EmpAddEditComponent, {
-      data,
+      data: { employee: data, selectedFileName: data.image ? data.image : null },
     });
-
     dialogRef.afterClosed().subscribe({
       next: (val) => {
         if (val) {

@@ -37,25 +37,22 @@ export class EmployeeService {
     return this.http.post<Employee>('http://localhost:9091/emp/addEmployee', formData);
   }
   
-  updateEmployee(id: number, employeeData: any, imageFiles: File[]): Observable<any> {
+  updateEmployee(id: number, employeeData: Employee, imageFiles: File[]): Observable<any> {
     const formData: FormData = new FormData();
-  
+
     // Append employee data as a JSON string
-    formData.append('employee', JSON.stringify(employeeData));
-  
-    // Append each image file
+    formData.append('employee', new Blob([JSON.stringify(employeeData)], { type: 'application/json' }));
+
+    // Append each image file with a unique name
     for (let i = 0; i < imageFiles.length; i++) {
-      formData.append(`imageFile${i}`, imageFiles[i], imageFiles[i].name);
+      formData.append(`imagePath`, imageFiles[i], imageFiles[i].name); // name will be used as filename
     }
-    const headers = new HttpHeaders();
-    return this.http.post<any>('http://localhost:9091/emp/addEmployee', formData, { headers })
-      .pipe(
-        catchError(error => {
-          console.error('Error adding employee:', error);
-          throw error; // Rethrow the error for handling in the calling code
-        })
-      );
+
+    // Make the HTTP request
+    return this.http.put<Employee>(`http://localhost:9091/emp/updateEmployee/${id}`, formData);
   }
+
+  
   
   deleteEmployee(id: number): Observable<any> {
     return this.http.delete(`http://localhost:9091/emp/deleteEmployeeById/${id}`);
